@@ -9,7 +9,6 @@ import (
 type DamiService struct {
 	OpenAIKey string
 
-	KongGatewayAdminUrl  string
 	KongGatewayPublicUrl string
 }
 
