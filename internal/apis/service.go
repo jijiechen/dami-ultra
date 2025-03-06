@@ -2,6 +2,7 @@ package apis
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"github.com/jijiechen/dami-ultra/internal/business"
 	"strings"
@@ -29,7 +30,21 @@ func (s *DamiService) PostMessage(ctx context.Context, list business.MessageList
 	prompt := WrapQuestion(lastMessage.Content)
 
 	aiResp, err := s.OpenAISDK.CallAI(prompt)
+	fmt.Println(aiResp)
+
 	aiResp = strings.ReplaceAll(aiResp, "```json", "")
 	aiResp = strings.ReplaceAll(aiResp, "```", "")
-	return aiResp, err
+
+	var respObj AIResponse
+	err = json.Unmarshal([]byte(aiResp), &respObj)
+	if err != nil {
+		return "", err
+	}
+
+	if respObj.Valid {
+		// (TODO) apply it
+		return "Your configuration has been applied successfully", nil
+	} else {
+		return respObj.ErrorMessages, err
+	}
 }
