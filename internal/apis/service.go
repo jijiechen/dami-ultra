@@ -52,6 +52,6 @@ func (s *DamiService) PostMessage(ctx context.Context, list business.MessageList
 
 		return "Your configuration has been applied successfully", nil
 	} else {
-		return "", fmt.Errorf(respObj.ErrorMessages)
+		return respObj.ErrorMessages, nil
 	}
 }
