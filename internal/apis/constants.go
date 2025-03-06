@@ -228,8 +228,10 @@ var PromptTemplate = `You are a schema validator for the Kong Gateway that valid
 Please read the validator code, use it to validate the user's input and generate output. The user's input is attached in the end of this prompt wrapped in the pair of <code></code>, and it's in JSON format.
 
 Important notes for generating output:
-1. when the given configuration IS VALID, please output the content of the user input without any other explanation. 
-2. when the given configuration IS NOT VALID, please generate some error messages in natual language to explain the errors.
+1. use the following JSON format to wrap your output: '{"valid": true, "raw_configuration": { }, "error_messages": "<potential error messages or suggestions to fix the errors>"}'.
+2. DO NOT include any explanation or any code splitter in your output, you output MUST BE in valid JSON format, this is VERY IMPORTANT, otherwise your output will not be handled correctly.
+3. when the given configuration IS VALID, please output 'true' using field 'valid' and attach the raw configuration in field 'raw_configuration'. 
+4. when the given configuration IS NOT VALID, please output 'false' using field 'valid' and attach errors in field 'error_messages'.
 
 Lua code of the validator:
 <code>

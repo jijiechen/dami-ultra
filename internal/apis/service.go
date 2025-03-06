@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/jijiechen/dami-ultra/internal/business"
+	"strings"
 )
 
 var OpenAIKey = "5VoC5nUaLiGuVpVmHuoBcoLGyQ6ezgsbyqRqXtSqw3yPDKkk7R7OJQQJ99BCACi0881XJ3w3AAAAACOGKfkY"
@@ -29,5 +30,7 @@ func (s *DamiService) PostMessage(ctx context.Context, list business.MessageList
 	prompt := WrapQuestion(lastMessage.Content)
 
 	aiResp, err := s.OpenAISDK.CallAI(prompt)
+	aiResp = strings.ReplaceAll(aiResp, "```json", "")
+	aiResp = strings.ReplaceAll(aiResp, "```", "")
 	return aiResp, err
 }
