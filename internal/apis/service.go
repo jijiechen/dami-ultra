@@ -47,7 +47,7 @@ func (s *DamiService) PostMessage(ctx context.Context, list business.MessageList
 		fmt.Println("applying configuration", respObj.RawConfiguration)
 		err = kong_api.ApplyKongConfig(s.KongGatewayAdminUrl, respObj.RawConfiguration)
 		if err != nil {
-			return "", err
+			return "", fmt.Errorf("your configuration look perfect, but unfortunately it's not possible to be applied at the moment: %w", err)
 		}
 
 		return "Your configuration has been applied successfully", nil
