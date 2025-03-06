@@ -26,6 +26,11 @@ func WrapQuestion(question string) string {
 	return fmt.Sprintf(context, question)
 }
 
+
+func ShouldApply(question string) bool {
+	return strings.Contains(strings.ToLower(question, "apply"))
+}
+
 type DamiService struct {
 	OpenAISDK            *OpenAI
 	KongGatewayAdminUrl  string
