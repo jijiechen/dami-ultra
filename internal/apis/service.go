@@ -15,7 +15,6 @@ func WrapQuestion(question string) string {
 
 type DamiService struct {
 	OpenAISDK            *OpenAI
-	KongGatewayAdminUrl  string
 	KongGatewayPublicUrl string
 }
 
