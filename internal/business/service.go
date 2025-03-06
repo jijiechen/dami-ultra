@@ -2,8 +2,13 @@ package business
 
 import "context"
 
+type Message struct {
+	Author  string `json:"author"` // system/user
+	Content string `json:"content"`
+}
+
 type MessageList struct {
-	Messages []string `json:"items"`
+	Messages []Message `json:"messages"`
 }
 
 type IDamiUltraService interface {

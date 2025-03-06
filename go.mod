@@ -1,4 +1,4 @@
-module github.com/yuchanns/kong-exercise-microservices
+module github.com/jijiechen/dami-ultra
 
 go 1.23.4
 
