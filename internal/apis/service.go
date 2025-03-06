@@ -45,7 +45,11 @@ func NewService() *DamiService {
 func (s *DamiService) PostMessage(ctx context.Context, list business.MessageList) (string, error) {
 	lastMessage := list.Messages[len(list.Messages)-1]
 
-	aiResp, err := s.OpenAISDK.CallAI(lastMessage.Content)
+	if ShouldApply(lastmessage) {
+		// TODO: apply config to gateway
+		return "Your change has been applied" // or failed
+	}
 
+	aiResp, err := s.OpenAISDK.CallAI(lastMessage.Content)
 	return aiResp, err
 }
