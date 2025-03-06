@@ -3,7 +3,7 @@ package apis
 import (
 	"context"
 
-	"github.com/yuchanns/kong-exercise-microservices/internal/business"
+	"github.com/jijiechen/dami-ultra/internal/business"
 )
 
 type DamiService struct {

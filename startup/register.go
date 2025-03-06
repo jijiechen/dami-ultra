@@ -2,8 +2,8 @@ package startup
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/yuchanns/kong-exercise-microservices/internal/apis"
-	"github.com/yuchanns/kong-exercise-microservices/utils/helpers"
+	"github.com/jijiechen/dami-ultra/internal/apis"
+	"github.com/jijiechen/dami-ultra/utils/helpers"
 )
 
 func Run(engine *gin.Engine) (err error) {
