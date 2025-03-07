@@ -61,7 +61,7 @@ The following table in markdown format shows the operations the user may be aski
 |-------|------|
 | check-validity | matches when the content given by the user is a valid JSON string |
 | apply-config-yes | the user wants to apply a configuration |
-| abort-config-no | the user does not want to apply a configuration |
+| apply-config-no | the user does not want to apply a configuration |
 | show-help | the user asks for help |
 
 Important notes for generating output:
