@@ -12,5 +12,6 @@ type MessageList struct {
 }
 
 type IDamiUltraService interface {
-	PostMessage(ctx context.Context, list MessageList) (string, error)
+	PostMessages(ctx context.Context, list MessageList) (string, error)
+	PostOperationMessage(ctx context.Context, list MessageList) (string, error)
 }

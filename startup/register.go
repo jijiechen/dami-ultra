@@ -19,6 +19,7 @@ func Register(engine *gin.Engine) (err error) {
 
 	v1 := engine.Group("/api")
 	svc := apis.NewService()
-	v1.POST("/message", helpers.BuildHandler(svc.PostMessage))
+	v1.POST("/message", helpers.BuildHandler(svc.PostMessages))
+	v1.POST("/message/v2", helpers.BuildHandler(svc.PostOperationMessage))
 	return
 }

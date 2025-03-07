@@ -21,7 +21,7 @@ func NewService() *DamiService {
 	return &DamiService{OpenAISDK: sdk, KongGatewayAdminUrl: KongAdminURL}
 }
 
-func (s *DamiService) PostMessage(ctx context.Context, list business.MessageList) (string, error) {
+func (s *DamiService) PostMessages(ctx context.Context, list business.MessageList) (string, error) {
 	lastMessage := list.Messages[len(list.Messages)-1]
 
 	aiResp, err := s.OpenAISDK.ValidateKongConfiguration(lastMessage.Content)
@@ -29,19 +29,56 @@ func (s *DamiService) PostMessage(ctx context.Context, list business.MessageList
 		return "", err
 	}
 
-	return s.applyValidatedKongConfig(aiResp)
-}
-
-func (s *DamiService) applyValidatedKongConfig(aiResp ai.ValidateOpenAIResponse) (string, error) {
 	if aiResp.Valid {
-		fmt.Println("applying configuration", aiResp.RawConfiguration)
-		err := kong_api.ApplyKongConfig(s.KongGatewayAdminUrl, aiResp.RawConfiguration)
-		if err != nil {
-			return "", fmt.Errorf("your configuration look perfect, but unfortunately it's not possible to be applied at the moment: %w", err)
-		}
-
-		return "Your configuration has been applied successfully", nil
+		return s.applyKongConfig(aiResp.RawConfiguration)
 	} else {
 		return aiResp.ErrorMessages, nil
 	}
+}
+
+func (s *DamiService) PostOperationMessage(ctx context.Context, list business.MessageList) (string, error) {
+	operationName, err := s.OpenAISDK.GetOperation(list.Messages)
+	if err != nil {
+		return "", err
+	}
+
+	fmt.Println(fmt.Sprintf("user operation: %s", operationName))
+	if operationName == ai.OperationNone {
+		return s.OpenAISDK.OperationNotUnderstood()
+	}
+
+	switch operationName {
+	case ai.OperationCheckValidity:
+		lastMessage := list.Messages[len(list.Messages)-1]
+		aiResp, err := s.OpenAISDK.ValidateKongConfiguration(lastMessage.Content)
+		if err != nil {
+			return "", err
+		}
+		if aiResp.Valid {
+			return s.OpenAISDK.AskIfApplyConfig()
+		} else {
+			return aiResp.ErrorMessages, nil
+		}
+	case ai.OperationApplyConfigYes:
+		validatedConfig, err := s.OpenAISDK.ExtractValidatedConfig(list.Messages)
+		if err != nil {
+			return "", err
+		}
+		return s.applyKongConfig(validatedConfig)
+	case ai.OperationApplyConfigNo:
+		return s.OpenAISDK.ShowConfigDiscarded()
+	case ai.OperationShowHelp:
+		return s.OpenAISDK.ShowHelpMessage("https://docs.konghq.com/gateway/")
+	}
+	return "", fmt.Errorf("operation %s is not supported", operationName)
+}
+
+func (s *DamiService) applyKongConfig(kongConfig string) (string, error) {
+	fmt.Println("applying configuration", kongConfig)
+	err := kong_api.ApplyKongConfig(s.KongGatewayAdminUrl, kongConfig)
+	if err != nil {
+		return "", fmt.Errorf("your configuration look perfect, but unfortunately it's not possible to be applied at the moment: %w", err)
+	}
+
+	return "Your configuration has been applied successfully", nil
 }

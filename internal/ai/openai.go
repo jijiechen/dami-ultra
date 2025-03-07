@@ -5,6 +5,7 @@ import (
 	"github.com/jijiechen/dami-ultra/internal/business"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/azure"
+	"strings"
 )
 
 type OpenAI struct {
@@ -46,4 +47,21 @@ func (o *OpenAI) CallAI(systemMessage string, messages []business.Message) (stri
 		return "", err
 	}
 	return chatCompletion.Choices[0].Message.Content, nil
+}
+
+func (o *OpenAI) CallAISingle(message string) (string, error) {
+	aiResp, err := o.CallAI(
+		"",
+		[]business.Message{
+			{Author: "user", Content: message},
+		})
+
+	if err != nil {
+		return "", err
+	}
+
+	aiResp = strings.TrimFunc(aiResp, func(r rune) bool {
+		return r == ' ' || r == '\n' || r == '"' || r == '\''
+	})
+	return aiResp, nil
 }

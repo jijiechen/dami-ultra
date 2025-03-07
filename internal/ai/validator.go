@@ -35,6 +35,23 @@ func (o *OpenAI) ValidateKongConfiguration(kongConfigString string) (ValidateOpe
 	return respObj, err
 }
 
+func (o *OpenAI) ExtractValidatedConfig(messages []business.Message) (string, error) {
+	msgJsonString, err := json.Marshal(messages)
+	if err != nil {
+		return "", err
+	}
+
+	config, err := o.CallAISingle(fmt.Sprintf(validatorSummarizePromptTemplate, msgJsonString))
+	if err != nil {
+		return "", err
+	}
+
+	if config == "NOT_FOUND" {
+		return "", fmt.Errorf("could not determine the last validated Kong configuration")
+	}
+	return config, nil
+}
+
 var validatorSystemPromptTemplate = `You are a schema validator for the Kong Gateway that validates user's input according to the rules defined by some Lua code.
 Please read the validator code wrapped in the pair of <code></code>, use it to validate the user's input and generate output. The user's input should be in JSON format.
 
@@ -56,6 +73,14 @@ var validatorUserPromptTemplate = `Here is my Kong Gateway configuration in JSON
 <code>
 %s
 </code>`
+
+var validatorSummarizePromptTemplate = `Read the conversation described in given JSON wrapped in the pair of <code></code>, extract and output the last validated configuration discussed in the conversation; ONLY output the JSON content extracted form the conversation and DO NOT output any explanation or additional words for coherence usage; if there is no such configuration found, output "NOT_FOUND", without quotes.
+
+JSON describing conversation messages:
+<code>
+%s
+</code>
+`
 
 var luaValidatorCode = `
 local typedefs = require("kong.db.schema.typedefs")
