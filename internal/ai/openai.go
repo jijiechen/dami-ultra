@@ -63,5 +63,7 @@ func (o *OpenAI) CallAISingle(message string) (string, error) {
 	aiResp = strings.TrimFunc(aiResp, func(r rune) bool {
 		return r == ' ' || r == '\n' || r == '"' || r == '\''
 	})
+	aiResp = strings.ReplaceAll(aiResp, "```json", "")
+	aiResp = strings.ReplaceAll(aiResp, "```", "")
 	return aiResp, nil
 }

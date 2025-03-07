@@ -36,5 +36,6 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://192.168.10.26:9090"
+
+  "proxy": "http://127.0.0.1:9090"
 }
