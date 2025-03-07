@@ -1,6 +1,63 @@
-package apis
+package ai
 
-var LuaValidator = `
+import (
+	"encoding/json"
+	"fmt"
+	"github.com/jijiechen/dami-ultra/internal/business"
+	"strings"
+)
+
+type ValidateOpenAIResponse struct {
+	Valid bool `json:"valid,omitempty"`
+	//RawConfiguration map[string]interface{} `json:"raw_configuration,omitempty"`
+	RawConfiguration string `json:"raw_configuration,omitempty"`
+	ErrorMessages    string `json:"error_messages,omitempty"`
+}
+
+func (o *OpenAI) ValidateKongConfiguration(kongConfigString string) (ValidateOpenAIResponse, error) {
+	aiResp, err := o.CallAI(
+		fmt.Sprintf(validatorSystemPromptTemplate, luaValidatorCode),
+		[]business.Message{
+			{Author: "system", Content: validatorAssistantPrompt},
+			{Author: "user", Content: fmt.Sprintf(validatorUserPromptTemplate, kongConfigString)},
+		})
+
+	var respObj ValidateOpenAIResponse
+	if err != nil {
+		return respObj, err
+	}
+
+	fmt.Println(aiResp)
+	aiResp = strings.ReplaceAll(aiResp, "```json", "")
+	aiResp = strings.ReplaceAll(aiResp, "```", "")
+
+	err = json.Unmarshal([]byte(aiResp), &respObj)
+	return respObj, err
+}
+
+var validatorSystemPromptTemplate = `You are a schema validator for the Kong Gateway that validates user's input according to the rules defined by some Lua code.
+Please read the validator code wrapped in the pair of <code></code>, use it to validate the user's input and generate output. The user's input should be in JSON format.
+
+Important notes for generating output:
+1. use the following JSON format to wrap your output: '{"valid": true, "raw_configuration": "<JSON string of the raw configuration when it's valid>", "error_messages": "<potential messages that laugh at the user>"}'.
+2. DO NOT include any explanation or any code splitter in your output, you output MUST BE in valid JSON format, this is VERY IMPORTANT, otherwise your output will not be handled correctly.
+3. when the given configuration IS VALID, please output 'true' using field 'valid' and attach the raw configuration in field 'raw_configuration'. 
+4. when the given configuration IS NOT VALID, please output 'false' using field 'valid' and tell a polite joke to laugh at the user based on the error of the user's input.
+
+Lua code of the validator:
+<code>
+%s
+</code>
+`
+
+var validatorAssistantPrompt = `Please enter your Kong Gateway configuration in JSON format, and I will validate it for you.`
+
+var validatorUserPromptTemplate = `Here is my Kong Gateway configuration in JSON format, it's wrapped in the pair of <code></code>:
+<code>
+%s
+</code>`
+
+var luaValidatorCode = `
 local typedefs = require("kong.db.schema.typedefs")
 local deprecation = require("kong.deprecation")
 
@@ -222,24 +279,4 @@ end
 
 
 return routes
-`
-
-var PromptTemplate = `You are a schema validator for the Kong Gateway that validates user's input according to the rules defined by some Lua code.
-Please read the validator code, use it to validate the user's input and generate output. The user's input is attached in the end of this prompt wrapped in the pair of <code></code>, and it's in JSON format.
-
-Important notes for generating output:
-1. use the following JSON format to wrap your output: '{"valid": true, "raw_configuration": "<JSON string of the raw configuration when it's valid>", "error_messages": "<potential messages that laugh at the user>"}'.
-2. DO NOT include any explanation or any code splitter in your output, you output MUST BE in valid JSON format, this is VERY IMPORTANT, otherwise your output will not be handled correctly.
-3. when the given configuration IS VALID, please output 'true' using field 'valid' and attach the raw configuration in field 'raw_configuration'. 
-4. when the given configuration IS NOT VALID, please output 'false' using field 'valid' and tell a polite joke to laugh at the user based on the error of the user's input, call the user "you".
-
-Lua code of the validator:
-<code>
-%s
-</code>
-
-The user's input is: 
-<code>
-%s
-</code>
 `

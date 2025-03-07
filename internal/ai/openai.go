@@ -1,7 +1,8 @@
-package apis
+package ai
 
 import (
 	"context"
+	"github.com/jijiechen/dami-ultra/internal/business"
 	"github.com/openai/openai-go"
 	"github.com/openai/openai-go/azure"
 )
@@ -16,19 +17,31 @@ const azureOpenAIEndpoint = "https://hackathonchina2025.services.ai.azure.com"
 // https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#rest-api-versioning
 const azureOpenAIAPIVersion = "2024-06-01"
 
-func (o *OpenAI) CallAI(msg string) (string, error) {
+func (o *OpenAI) CallAI(systemMessage string, messages []business.Message) (string, error) {
 	client := openai.NewClient(
 		azure.WithEndpoint(azureOpenAIEndpoint, azureOpenAIAPIVersion),
 		// Choose between authenticating using a TokenCredential or an API Key
 		azure.WithAPIKey(o.APIKey),
 	)
-	chatCompletion, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
-		Messages: openai.F([]openai.ChatCompletionMessageParamUnion{
-			openai.UserMessage(msg),
-		}),
-		Model: openai.F(openai.ChatModelGPT4o),
-	})
 
+	var llmMessages []openai.ChatCompletionMessageParamUnion
+	if systemMessage != "" {
+		llmMessages = append(llmMessages, openai.SystemMessage(systemMessage))
+	}
+
+	for _, msg := range messages {
+		switch msg.Author {
+		case "system":
+			llmMessages = append(llmMessages, openai.AssistantMessage(msg.Content))
+		case "user":
+			llmMessages = append(llmMessages, openai.UserMessage(msg.Content))
+		}
+	}
+
+	chatCompletion, err := client.Chat.Completions.New(context.TODO(), openai.ChatCompletionNewParams{
+		Messages: openai.F(llmMessages),
+		Model:    openai.F(openai.ChatModelGPT4o),
+	})
 	if err != nil {
 		return "", err
 	}
