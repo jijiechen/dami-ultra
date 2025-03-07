@@ -1,0 +1,145 @@
+.App {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5em;
+  color: #666;
+  padding: 10px;
+  flex-shrink: 0;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.message-history {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px;
+}
+
+/* Custom scrollbar styles */
+.message-history::-webkit-scrollbar {
+  width: 12px;
+}
+
+.message-history::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.message-history::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.message-history::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+.message-container {
+  display: flex;
+  max-width: 60%;
+  margin: 10px 0;
+  gap: 10px;
+}
+
+.user-message-container {
+  flex-direction: row;
+  align-self: flex-start;
+}
+
+.server-message-container {
+  flex-direction: row-reverse;
+  align-self: flex-end;
+}
+
+.avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #ddd;
+  line-height: 50px;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.message {
+  display: block;
+  padding: 10px;
+  border-radius: 5px;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  text-align: left;
+  word-break: break-all;
+  /* Preserve new lines */
+}
+
+.user-message {
+  background-color: #d1e7dd;
+}
+
+.server-message {
+  background-color: #f8d7da;
+}
+
+.message-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  flex-shrink: 0;
+  background-color: #ccc;
+}
+
+textarea {
+  width: 70%;
+  height: 50px;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #61dafb;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #21a1f1;
+}
