@@ -2,3 +2,5 @@ dami
 .idea
 
 webpage/node_modules
+
+.DS_Store
